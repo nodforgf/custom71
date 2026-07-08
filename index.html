@@ -1271,6 +1271,8 @@
 
         // unlock audio สำหรับ iOS/Android — ต้องทำตรงใน user gesture event
         let audioUnlocked = false;
+        let musicStarted = false; // flag กันเล่นเพลงซ้ำ
+        window._musicStarted = false; // expose ให้ script อื่นเข้าถึงได้
         function unlockAudio() {
             if (audioUnlocked) return;
             const bgMusic = document.getElementById('backgroundMusic');
@@ -1329,6 +1331,8 @@
                         bgMusic.muted = false;
                         bgMusic.volume = 0.5;
                         bgMusic.currentTime = 0;
+                        musicStarted = true;
+                        window._musicStarted = true;
                         bgMusic.play().catch(err => {
                             console.log("Music play failed:", err);
                             // ลองอีกครั้งด้วย user interaction ที่ยังค้างอยู่
@@ -2238,8 +2242,8 @@
             music.volume = 0.5;
 
             window.addEventListener('experienceStarted', function () {
-                // เพลงถูก play แล้วใน startExperience — แค่อัปเดต icon
-                if (!music.paused) {
+                // เพลงถูก play แล้วใน startHolding — แค่อัปเดต icon
+                if (!music.paused || window._musicStarted) {
                     playIcon.style.display  = 'none';
                     pauseIcon.style.display = 'block';
                 } else {
